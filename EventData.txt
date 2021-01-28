@@ -1,0 +1,4 @@
+eventOne, 15, 16, Thisisthefirstoutcometext, true, 16, 17, Thisisthesecondoutcometext, false
+eventTwo, 19, 20, Thisisthesecondeventfirstoutcometext, true, 21, 30, thisisthesecondeventsecondoutcometext, false
+phase2
+eventOne, 30, 40, Thisisthefirstoucometext, true, 40, 50, thisisthesecondoutcometext, false
