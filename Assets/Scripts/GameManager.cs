@@ -10,14 +10,18 @@ public class GameManager : MonoBehaviour
 {
     [SerializeField] GameObject gameMenu;
     [SerializeField] GameObject startMenu;
+    [SerializeField] GameObject goldenCoin;
+    [SerializeField] GameObject coinSpawnPoint;
     [SerializeField] Slider hungerSlider;
     [SerializeField] Slider moraleSlider;
+    [SerializeField] TextMeshProUGUI moneyText;
     [SerializeField] Button optionButton1;
     [SerializeField] Button optionButton2;
     [SerializeField] Button optionButton3;
     [SerializeField] TextMeshProUGUI optionButton1Text;
     [SerializeField] TextMeshProUGUI optionButton2Text;
     [SerializeField] TextMeshProUGUI optionButton3Text;
+    
     string fileName = "EventData.txt";
     string fullPath;
     int phase;
@@ -25,8 +29,12 @@ public class GameManager : MonoBehaviour
     List<gameEvent> eventDataPhase1 = new List<gameEvent>();
     List<gameEvent> eventDataPhase2 = new List<gameEvent>();
 
+    List<GameObject> coinClones = new List<GameObject>();
+
     private int foodBar;
     private int moraleBar;
+    private int friendAmount;
+    private int moneyBalance;
     
     // Start is called before the first frame update
     void Start()
@@ -51,15 +59,49 @@ public class GameManager : MonoBehaviour
     {
         gameMenu.SetActive(true);
         startMenu.SetActive(false);
-        foodBar = 50;
-        moraleBar = 50;
-        UpdateSliders();
+
+        UpdateSliders(50, 50);
+        UpdateMoney(5);
     }
 
-    public void UpdateSliders()
+    public void UpdateSliders(int h, int m)
     {
+
+        foodBar += h;
+        moraleBar += m;
+        
         hungerSlider.value = foodBar;
         moraleSlider.value = moraleBar;
+    }
+
+    public void UpdateMoney(int m)
+    {
+        moneyBalance += m;
+        moneyText.text = "Money: " + moneyBalance;
+
+        if (coinClones.Count < moneyBalance)
+        {
+            for (int i = coinClones.Count; i < moneyBalance; i++)
+            {
+                coinClones.Add(Instantiate(goldenCoin, coinSpawnPoint.transform.position, goldenCoin.transform.rotation));
+            }
+            Debug.Log(coinClones.Count);
+        }
+        else if (coinClones.Count > moneyBalance)
+        {
+            while (coinClones.Count > moneyBalance)
+            {
+                Destroy(coinClones[coinClones.Count - 1]);
+                coinClones.RemoveAt(coinClones.Count - 1);
+            }
+        }
+        else if (coinClones.Count == moneyBalance)
+        {
+            //For now do nothing? I don't know if I need this. Might just be nice organization wise to leave this here.
+        }
+
+        //needs to change money text to represent how much money you have
+        //needs to spawn or remove GoldCoin clones to equal how much money you have, 1 coin = 1 dollar
     }
 
     void initializeEventData()
@@ -72,12 +114,13 @@ public class GameManager : MonoBehaviour
                 
                 string[] words = lines[i].Split(',');
 
-                
                 gameEvent gameEvent = new gameEvent(words[0]);
-                for (int k = 1; k < words.Length; k += 4)
+                for (int k = 1; k < words.Length; k += 5)
                 {
-                    outcome outcome = new outcome(int.Parse(words[k]), int.Parse(words[k + 1]), words[k + 2], bool.Parse(words[k + 3]));
+                    
+                    outcome outcome = new outcome(int.Parse(words[k].Trim()), int.Parse(words[k + 1].Trim()), int.Parse(words[k + 2].Trim()), words[k + 3], bool.Parse(words[k + 4].Trim()));
                     gameEvent.addOutcome(outcome);
+
                 }
 
                 eventDataPhase1.Add(gameEvent);
@@ -92,9 +135,9 @@ public class GameManager : MonoBehaviour
 
 
                     gameEvent gameEvent = new gameEvent(words[0]);
-                    for (int l = 1; l < words.Length; l += 4)
+                    for (int l = 1; l < words.Length; l += 5)
                     {
-                        outcome outcome = new outcome(int.Parse(words[l]), int.Parse(words[l + 1]), words[l + 2], bool.Parse(words[l + 3]));
+                        outcome outcome = new outcome(int.Parse(words[l].Trim()), int.Parse(words[l + 1].Trim()), int.Parse(words[l + 2].Trim()), words[l + 3], bool.Parse(words[l + 4].Trim()));
                         gameEvent.addOutcome(outcome);
                     }
                     eventDataPhase2.Add(gameEvent);
@@ -144,20 +187,23 @@ public class GameManager : MonoBehaviour
 
             optionButton1Text.text = eventDataPhase1[randomVal1].getName();
             optionButton1.onClick.AddListener(delegate { buttonEvent(eventDataPhase1[randomVal1].getOutcome(randomOutcome1).getHealthVal(),
-                eventDataPhase1[randomVal1].getOutcome(randomOutcome1).getMoraleVal(), eventDataPhase1[randomVal1].getOutcome(randomOutcome1).getEventText(),
+                eventDataPhase1[randomVal1].getOutcome(randomOutcome1).getMoraleVal(), eventDataPhase1[randomVal1].getOutcome(randomOutcome1).getCashVal(), 
+                eventDataPhase1[randomVal1].getOutcome(randomOutcome1).getEventText(),
                 eventDataPhase1[randomVal1].getOutcome(randomOutcome1).getHasFriend()); });
 
             optionButton2Text.text = eventDataPhase1[randomVal2].getName();
             optionButton2.onClick.AddListener(delegate {
                 buttonEvent(eventDataPhase1[randomVal2].getOutcome(randomOutcome2).getHealthVal(),
-                eventDataPhase1[randomVal2].getOutcome(randomOutcome2).getMoraleVal(), eventDataPhase1[randomVal2].getOutcome(randomOutcome2).getEventText(),
+                eventDataPhase1[randomVal2].getOutcome(randomOutcome2).getMoraleVal(), eventDataPhase1[randomVal1].getOutcome(randomOutcome1).getCashVal(), 
+                eventDataPhase1[randomVal2].getOutcome(randomOutcome2).getEventText(),
                 eventDataPhase1[randomVal2].getOutcome(randomOutcome2).getHasFriend());
             });
 
             optionButton3Text.text = eventDataPhase1[randomVal3].getName();
             optionButton3.onClick.AddListener(delegate {
                 buttonEvent(eventDataPhase1[randomVal3].getOutcome(randomOutcome3).getHealthVal(),
-                eventDataPhase1[randomVal3].getOutcome(randomOutcome3).getMoraleVal(), eventDataPhase1[randomVal3].getOutcome(randomOutcome3).getEventText(),
+                eventDataPhase1[randomVal3].getOutcome(randomOutcome3).getMoraleVal(), eventDataPhase1[randomVal1].getOutcome(randomOutcome1).getCashVal(), 
+                eventDataPhase1[randomVal3].getOutcome(randomOutcome3).getEventText(),
                 eventDataPhase1[randomVal3].getOutcome(randomOutcome3).getHasFriend());
             });
             //add a listener to each button using the randomVals to select an index in the eventData lists
@@ -169,28 +215,16 @@ public class GameManager : MonoBehaviour
         }
     }
     
-    void buttonEvent(int healthVal, int moraleVal, string eventText, bool hasFriend)
+    void buttonEvent(int healthVal, int moraleVal, int moneyVal, string eventText, bool hasFriend)
     {
-        Debug.Log("buttonEvent has been called with values: " + healthVal + ", " + moraleVal + ", " + eventText + ", " + hasFriend);
+        Debug.Log("buttonEvent has been called with values: " + healthVal + ", " + moraleVal + ", " + moneyVal + ", " + eventText + ", " + hasFriend);
+
+
+        UpdateSliders(healthVal, moraleVal);
+        UpdateMoney(moneyVal);
 
         toggleOptionButtons(false);
     }
-
-
-    /* So I want to be able to store event data in some kind of variable structure,
-     * I want each event to have an event name, and some number of possible outcomes
-     * I want each outcome to have a healthVal, a moraleVal, an eventText, and if it's a phase2 event, a hasFriend bool
-     * what about a tuple, with an eventName string, and then multiple additional tuples that are the outcomes?
-     * 
-     * 
-     * declare a new class
-     * 
-     * 
-     * 
-     * 
-     * 
-     * 
-     */
 
     void toggleOptionButtons(bool state)
     {
@@ -240,13 +274,16 @@ public class outcome
 {
     public int healthVal;
     public int moraleVal;
+    public int cashVal;
     public string eventText;
     public bool hasFriend;
+    
 
-    public outcome(int h, int m, string e, bool hf)
+    public outcome(int h, int m, int c, string e, bool hf)
     {
         healthVal = h;
         moraleVal = m;
+        cashVal = c;
         eventText = e;
         hasFriend = hf;
     }
@@ -259,6 +296,11 @@ public class outcome
     public int getMoraleVal()
     {
         return moraleVal;
+    }
+
+    public int getCashVal()
+    {
+        return cashVal;
     }
 
     public string getEventText()

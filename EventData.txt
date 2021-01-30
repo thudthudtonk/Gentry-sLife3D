@@ -1,4 +1,7 @@
-eventOne, 15, 16, Thisisthefirstoutcometext, true, 16, 17, Thisisthesecondoutcometext, false
-eventTwo, 19, 20, Thisisthesecondeventfirstoutcometext, true, 21, 30, thisisthesecondeventsecondoutcometext, false
+eventOne, 10, 15, 20, First event first outcome, true, 16, 17, 30, First event second outcome, false
+eventTwo, 19, 20, 30, Second event first outcome, true, 21, 30, 40, Second event second outcome, false
+eventThree, 1, 2, 15, Third event first outcome, true, 2, 3, 16, Third event second outcome, false, 10, 15, 30, Third event third outcome, true
+eventFour, 1, 56, 10, Fourth event first outcome, false
+eventFive, 20, 30, 5, Fifth event first outcome, true, 5, 10, 3, Fifth event second outcome, false
 phase2
-eventOne, 30, 40, Thisisthefirstoucometext, true, 40, 50, thisisthesecondoutcometext, false
+eventOne, 15, 30, 40, Phase 2 first event first outcome, true, 20, 40, 50, Phase 2 first event second outcome, false
