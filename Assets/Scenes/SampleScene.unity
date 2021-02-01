@@ -173,6 +173,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bb4f0c3a1d61dfc479d8590b0f7b733f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  gameManager: {fileID: 1872660382}
+  endDayButton: {fileID: 25616169}
 --- !u!114 &25616169
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -485,7 +487,7 @@ Transform:
   - {fileID: 1007399883}
   - {fileID: 1985644495}
   m_Father: {fileID: 0}
-  m_RootOrder: 6
+  m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &317189419
 GameObject:
@@ -1073,7 +1075,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 475140, guid: d4a714e8b38e04beebc539b65b50862e, type: 3}
       propertyPath: m_RootOrder
-      value: 9
+      value: 8
       objectReference: {fileID: 0}
     - target: {fileID: 475140, guid: d4a714e8b38e04beebc539b65b50862e, type: 3}
       propertyPath: m_LocalPosition.x
@@ -1745,7 +1747,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 8
+  m_RootOrder: 7
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &950283506
 GameObject:
@@ -3746,10 +3748,10 @@ MonoBehaviour:
   coinSpawnPoint: {fileID: 921413838}
   hungerSlider: {fileID: 1136869285}
   moraleSlider: {fileID: 482273592}
-  moneyText: {fileID: 398121809}
   optionButton1: {fileID: 1761949262}
   optionButton2: {fileID: 1344718749}
   optionButton3: {fileID: 1058362102}
+  moneyText: {fileID: 398121809}
   optionButton1Text: {fileID: 1199113606}
   optionButton2Text: {fileID: 2037723923}
   optionButton3Text: {fileID: 2081619154}
@@ -3765,7 +3767,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 5
+  m_RootOrder: 9
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1973386612
 GameObject:
@@ -4680,7 +4682,7 @@ Transform:
   m_Children:
   - {fileID: 7463185743063083162}
   m_Father: {fileID: 0}
-  m_RootOrder: 7
+  m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!23 &6366860433834263668
 MeshRenderer:

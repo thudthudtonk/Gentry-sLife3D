@@ -3,5 +3,6 @@ eventTwo, 19, 20, 30, Second event first outcome, true, true, 21, 30, 40, Second
 eventThree, 1, 2, 15, Third event first outcome, true, true, 2, 3, 16, Third event second outcome, false, true, 10, 15, 30, Third event third outcome, true, true
 eventFour, 1, 56, 10, Fourth event first outcome, false, true
 eventFive, 20, 30, 5, Fifth event first outcome, true, true, 5, 10, 3, Fifth event second outcome, false, true
+loseCoinsEvent, 0, 0, 10, loseCoinsEventOnlyOutcome, true, false
 phase2
 eventOne, 15, 30, 40, Phase 2 first event first outcome, true, false, 20, 40, 50, Phase 2 first event second outcome, false, true

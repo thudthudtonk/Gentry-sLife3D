@@ -110,6 +110,10 @@ public class GameManager : MonoBehaviour
     public void UpdateMoney(int m)
     {
         moneyBalance += m;
+
+        // You can't have negative money
+        if (moneyBalance < 0) moneyBalance = 0;
+
         moneyText.text = "Money: " + moneyBalance;
 
         if (coinClones.Count < moneyBalance)
@@ -127,6 +131,7 @@ public class GameManager : MonoBehaviour
                 Destroy(coinClones[coinClones.Count - 1]);
                 coinClones.RemoveAt(coinClones.Count - 1);
             }
+            Debug.Log(coinClones.Count);
         }
         else if (coinClones.Count == moneyBalance)
         {
@@ -157,7 +162,10 @@ public class GameManager : MonoBehaviour
                 for (int k = 1; k < words.Length; k += 6)
                 {
                     
+                    
+                    
                     outcome outcome = new outcome(int.Parse(words[k].Trim()), int.Parse(words[k + 1].Trim()), int.Parse(words[k + 2].Trim()), words[k + 3], bool.Parse(words[k + 4].Trim()), bool.Parse(words[k + 5].Trim()));
+                    Debug.Log(outcome.ToString());
                     gameEvent.addOutcome(outcome);
 
                 }
@@ -177,6 +185,7 @@ public class GameManager : MonoBehaviour
                     for (int l = 1; l < words.Length; l += 6)
                     {
                         outcome outcome = new outcome(int.Parse(words[l].Trim()), int.Parse(words[l + 1].Trim()), int.Parse(words[l + 2].Trim()), words[l + 3], bool.Parse(words[l + 4].Trim()), bool.Parse(words[l + 5].Trim()));
+                        Debug.Log(outcome.ToString());
                         gameEvent.addOutcome(outcome);
                     }
                     eventDataPhase2.Add(gameEvent);
@@ -190,6 +199,16 @@ public class GameManager : MonoBehaviour
         }
 
 
+    }
+
+    public void nextDay()
+    {
+        toggleOptionButtons(true);
+        randomizeButtons();
+        UpdateSliders(-15, -15); //Add a difficulty modifier here, each day takes away more food/morale in harder difficulty
+
+        // Add detectors for next phases
+        // Add something that refreshes the mini game buttons once those minigames are made
     }
 
     void testEventData()
@@ -237,27 +256,27 @@ public class GameManager : MonoBehaviour
             int randomOutcome2 = Random.Range(0, eventDataPhase1[randomVal2].getNumOutcomes());
             int randomOutcome3 = Random.Range(0, eventDataPhase1[randomVal3].getNumOutcomes());
 
+            outcome outcome1 = eventDataPhase1[randomVal1].getRandomOutcome();
+            outcome outcome2 = eventDataPhase1[randomVal2].getRandomOutcome();
+            outcome outcome3 = eventDataPhase1[randomVal3].getRandomOutcome();
+
+            // Removes all the previous listeners to add fresh ones
+            optionButton1.onClick.RemoveAllListeners();
+            optionButton2.onClick.RemoveAllListeners();
+            optionButton3.onClick.RemoveAllListeners();
+
+            // Change the text and add the correct listener for each button
             optionButton1Text.text = eventDataPhase1[randomVal1].getName();
-            optionButton1.onClick.AddListener(delegate { buttonEvent(eventDataPhase1[randomVal1].getOutcome(randomOutcome1).getHealthVal(),
-                eventDataPhase1[randomVal1].getOutcome(randomOutcome1).getMoraleVal(), eventDataPhase1[randomVal1].getOutcome(randomOutcome1).getCashVal(), 
-                eventDataPhase1[randomVal1].getOutcome(randomOutcome1).getEventText(),
-                eventDataPhase1[randomVal1].getOutcome(randomOutcome1).getHasFriend()); });
+            optionButton1.onClick.AddListener(delegate { buttonEvent(outcome1.healthVal, outcome1.moraleVal, outcome1.cashVal, outcome1.eventText, outcome1.hasFriend); });
 
             optionButton2Text.text = eventDataPhase1[randomVal2].getName();
-            optionButton2.onClick.AddListener(delegate {
-                buttonEvent(eventDataPhase1[randomVal2].getOutcome(randomOutcome2).getHealthVal(),
-                eventDataPhase1[randomVal2].getOutcome(randomOutcome2).getMoraleVal(), eventDataPhase1[randomVal1].getOutcome(randomOutcome1).getCashVal(), 
-                eventDataPhase1[randomVal2].getOutcome(randomOutcome2).getEventText(),
-                eventDataPhase1[randomVal2].getOutcome(randomOutcome2).getHasFriend());
-            });
+            optionButton2.onClick.AddListener(delegate { buttonEvent(outcome2.healthVal, outcome2.moraleVal, outcome2.cashVal, outcome2.eventText, outcome2.hasFriend); });
+
 
             optionButton3Text.text = eventDataPhase1[randomVal3].getName();
-            optionButton3.onClick.AddListener(delegate {
-                buttonEvent(eventDataPhase1[randomVal3].getOutcome(randomOutcome3).getHealthVal(),
-                eventDataPhase1[randomVal3].getOutcome(randomOutcome3).getMoraleVal(), eventDataPhase1[randomVal1].getOutcome(randomOutcome1).getCashVal(), 
-                eventDataPhase1[randomVal3].getOutcome(randomOutcome3).getEventText(),
-                eventDataPhase1[randomVal3].getOutcome(randomOutcome3).getHasFriend());
-            });
+            optionButton3.onClick.AddListener(delegate { buttonEvent(outcome3.healthVal, outcome3.moraleVal, outcome3.cashVal, outcome3.eventText, outcome3.hasFriend); });
+
+
         }
     }
     
@@ -266,7 +285,6 @@ public class GameManager : MonoBehaviour
     void buttonEvent(int healthVal, int moraleVal, int moneyVal, string eventText, bool hasFriend)
     {
         Debug.Log("buttonEvent has been called with values: " + healthVal + ", " + moraleVal + ", " + moneyVal + ", " + eventText + ", " + hasFriend);
-
 
         UpdateSliders(healthVal, moraleVal);
         UpdateMoney(moneyVal);
@@ -311,6 +329,11 @@ public class gameEvent
         return outcomes[index];
     }
 
+    public outcome getRandomOutcome()
+    {
+        return outcomes[Random.Range(0, outcomes.Count)];
+    }
+
     public int getNumOutcomes()
     {
         return outcomes.Count;
@@ -345,55 +368,44 @@ public class outcome
     public int cashVal;
     public string eventText;
     public bool hasFriend;
-    public bool isGain;
-    
 
     public outcome(int h, int m, int c, string e, bool hf, bool ig)
     {
-        healthVal = h;
-        moraleVal = m;
-        cashVal = c;
+        if (ig)
+        {
+            healthVal = h;
+            moraleVal = m;
+            cashVal = c;
+        }
+        else
+        {
+            healthVal = -h;
+            moraleVal = -m;
+            cashVal = -c;
+        }
         eventText = e;
         hasFriend = hf;
-        isGain = ig;
     }
 
     public int getHealthVal()
     {
-        if (isGain)
-        {
+   
             return healthVal;
-        }
-        else
-        {
-            return -healthVal;
-        }
         
     }
 
     public int getMoraleVal()
     {
-        if (isGain)
-        {
-            return moraleVal;
-        }
-        else
-        {
-            return -moraleVal;
-        }
+
+        return moraleVal;
         
     }
 
     public int getCashVal()
     {
-        if (isGain)
-        {
-            return cashVal;
-        }
-        else
-        {
-            return -cashVal;
-        }
+        
+        return cashVal;
+    
     }
 
     public string getEventText()
@@ -404,6 +416,13 @@ public class outcome
     public bool getHasFriend()
     {
         return hasFriend;
+    }
+
+    public override string ToString()
+    {
+        
+        return ("Outcome values: food: " + this.healthVal + " morale: " + this.moraleVal + " money: " + this.cashVal + " has friend?: " + this.hasFriend + " event text: " + this.eventText);
+       
     }
 
 } 
