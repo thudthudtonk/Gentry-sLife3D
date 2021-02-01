@@ -8,35 +8,53 @@ using TMPro;
 
 public class GameManager : MonoBehaviour
 {
+    // Game objects
     [SerializeField] GameObject gameMenu;
     [SerializeField] GameObject startMenu;
     [SerializeField] GameObject goldenCoin;
     [SerializeField] GameObject coinSpawnPoint;
+
+    // UI Elements
+
+    // Sliders
     [SerializeField] Slider hungerSlider;
     [SerializeField] Slider moraleSlider;
-    [SerializeField] TextMeshProUGUI moneyText;
+    
+    // Buttons
     [SerializeField] Button optionButton1;
     [SerializeField] Button optionButton2;
     [SerializeField] Button optionButton3;
+    
+    // Text
+    [SerializeField] TextMeshProUGUI moneyText;
     [SerializeField] TextMeshProUGUI optionButton1Text;
     [SerializeField] TextMeshProUGUI optionButton2Text;
     [SerializeField] TextMeshProUGUI optionButton3Text;
     
+    // File system/management
     string fileName = "EventData.txt";
     string fullPath;
-    int phase;
     string[] lines;
+    
+    // Game object lists
     List<gameEvent> eventDataPhase1 = new List<gameEvent>();
     List<gameEvent> eventDataPhase2 = new List<gameEvent>();
-
     List<GameObject> coinClones = new List<GameObject>();
 
+    // Character progress/values
+    int phase;
     private int foodBar;
     private int moraleBar;
     private int friendAmount;
     private int moneyBalance;
     
     // Start is called before the first frame update
+    /* Sets correct menus active and inactive
+     * Establishes file path and reads file lines into "lines" array
+     * Runs initializeEventData
+     * Initializes phase to 1
+     */
+
     void Start()
     {
         gameMenu.SetActive(false);
@@ -55,6 +73,10 @@ public class GameManager : MonoBehaviour
         
     }
 
+    /* Switches menu to gameMenu
+     * Updates food and morale sliders to start value of 50
+     * Updates money to default amount of 5 dollars
+     */
     public void StartGame()
     {
         gameMenu.SetActive(true);
@@ -64,6 +86,9 @@ public class GameManager : MonoBehaviour
         UpdateMoney(5);
     }
 
+    /* Adds input value to foodBar and moraleBar values
+     * Updates slider accordingly
+     */
     public void UpdateSliders(int h, int m)
     {
 
@@ -74,6 +99,14 @@ public class GameManager : MonoBehaviour
         moraleSlider.value = moraleBar;
     }
 
+    /* Adds input value to moneyBalance value
+     * Updates moneyText accordingly
+     * Runs through a loop to spawn coins until there are as many coins in your jar
+     * as you have money, using the coinClones list to store the objects
+     * To fix: Currently the starting 1 coin that I clone to spawn the other coins
+     * just sits in the jar active, I either need to move it out of view or figure
+     * out how to activate each clone as it's instantiated
+     */
     public void UpdateMoney(int m)
     {
         moneyBalance += m;
@@ -99,11 +132,17 @@ public class GameManager : MonoBehaviour
         {
             //For now do nothing? I don't know if I need this. Might just be nice organization wise to leave this here.
         }
-
-        //needs to change money text to represent how much money you have
-        //needs to spawn or remove GoldCoin clones to equal how much money you have, 1 coin = 1 dollar
     }
 
+    /* Reads through the lines array splitting each line at the comma and reading in the values
+     * Starts by making a gameEvent with the first value from the split line as the eventName
+     * then uses the next 6 values read in to construct an outcome object and add it to the
+     * gameEvent's outcomes list
+     * 
+     * Splits up the events in the text file between phase1 and phase2 by checking whether
+     * the line the loop is on reads "phase2" and if it does it switches over to inputting
+     * the values into the eventDataPhase2 list instead of eventDataPhase1
+     */
     void initializeEventData()
     {
      
@@ -115,10 +154,10 @@ public class GameManager : MonoBehaviour
                 string[] words = lines[i].Split(',');
 
                 gameEvent gameEvent = new gameEvent(words[0]);
-                for (int k = 1; k < words.Length; k += 5)
+                for (int k = 1; k < words.Length; k += 6)
                 {
                     
-                    outcome outcome = new outcome(int.Parse(words[k].Trim()), int.Parse(words[k + 1].Trim()), int.Parse(words[k + 2].Trim()), words[k + 3], bool.Parse(words[k + 4].Trim()));
+                    outcome outcome = new outcome(int.Parse(words[k].Trim()), int.Parse(words[k + 1].Trim()), int.Parse(words[k + 2].Trim()), words[k + 3], bool.Parse(words[k + 4].Trim()), bool.Parse(words[k + 5].Trim()));
                     gameEvent.addOutcome(outcome);
 
                 }
@@ -135,9 +174,9 @@ public class GameManager : MonoBehaviour
 
 
                     gameEvent gameEvent = new gameEvent(words[0]);
-                    for (int l = 1; l < words.Length; l += 5)
+                    for (int l = 1; l < words.Length; l += 6)
                     {
-                        outcome outcome = new outcome(int.Parse(words[l].Trim()), int.Parse(words[l + 1].Trim()), int.Parse(words[l + 2].Trim()), words[l + 3], bool.Parse(words[l + 4].Trim()));
+                        outcome outcome = new outcome(int.Parse(words[l].Trim()), int.Parse(words[l + 1].Trim()), int.Parse(words[l + 2].Trim()), words[l + 3], bool.Parse(words[l + 4].Trim()), bool.Parse(words[l + 5].Trim()));
                         gameEvent.addOutcome(outcome);
                     }
                     eventDataPhase2.Add(gameEvent);
@@ -161,6 +200,19 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    /* Generates random numbers between 0 and the number of events in the event list
+     * Then generates random numbers between 0 and the number of outcomes for each event
+     * Finally sets the text of each option button to the eventName for each gameEvent 
+     * and adds an onClick listener delegate for the method "buttonEvent" using the values from
+     * the outcome
+     * 
+     * Fixes: Considering making an object method for outcome that just does the button event
+     * using its member variables which would make sense honestly. Might need some finaggling.
+     * 
+     * Also need to find the best way to make sure the random numbers don't repeat, hoping to find
+     * some kind of "sample" method that can find 3 random unique numbers from a range instead of just
+     * generating 3 numbers and rerolling until they're all unique.
+     */
     public void randomizeButtons()
     {
         if (phase == 1)
@@ -206,15 +258,11 @@ public class GameManager : MonoBehaviour
                 eventDataPhase1[randomVal3].getOutcome(randomOutcome3).getEventText(),
                 eventDataPhase1[randomVal3].getOutcome(randomOutcome3).getHasFriend());
             });
-            //add a listener to each button using the randomVals to select an index in the eventData lists
-            //then from each index of the eventData list grab first the eventName (the first value of tuple)
-            //to set the button's text to that value, then add a listener to call buttonEvent using the 
-            //value of one of the tuples within the tuple, 
-
-
         }
     }
     
+    /* Updates sliders and money using the values passed to it and then toggles off the option buttons
+     */
     void buttonEvent(int healthVal, int moraleVal, int moneyVal, string eventText, bool hasFriend)
     {
         Debug.Log("buttonEvent has been called with values: " + healthVal + ", " + moraleVal + ", " + moneyVal + ", " + eventText + ", " + hasFriend);
@@ -226,6 +274,8 @@ public class GameManager : MonoBehaviour
         toggleOptionButtons(false);
     }
 
+    /* Switches the option buttons from either active or inactive depending on the bool value passed
+     */
     void toggleOptionButtons(bool state)
     {
         optionButton1.interactable = state;
@@ -238,7 +288,9 @@ public class GameManager : MonoBehaviour
 }
 
 
-
+/* Main meat and potatoes of the game -- holds an eventName string and a list of outcome objects
+ * can add outcomes, getOutcome at a specific index, and return the number of outcomes it has
+ */
 public class gameEvent
 {
     public string eventName;
@@ -270,6 +322,22 @@ public class gameEvent
     }
 }
 
+/* Maybe the ACTUAL meat and potatoes of the game - each outcome has:
+ * a healthVal (which is equivalent to "food")
+ * a moraleVal
+ * a cashVal
+ * an eventText
+ * a "hasFriend" bool (whether or not the event will grant the player a friend
+ * an "isGain" bool (which determines whether or not all of the other member values are
+ * gained or lost when the outcome occurs
+ * 
+ * This means that all events will have either only negative effects or only positive effects
+ * 
+ * Might want to find a more effective way to figure out how to allow outcomes to have both positive and 
+ * negative effects, but given the file reading system I have going I can't read in negative numbers, so I can't
+ * just have there be alternating values, and I don't want to just hard-code all the events because the flexibility
+ * of the text reading is great. We'll see.
+ */
 public class outcome
 {
     public int healthVal;
@@ -277,30 +345,55 @@ public class outcome
     public int cashVal;
     public string eventText;
     public bool hasFriend;
+    public bool isGain;
     
 
-    public outcome(int h, int m, int c, string e, bool hf)
+    public outcome(int h, int m, int c, string e, bool hf, bool ig)
     {
         healthVal = h;
         moraleVal = m;
         cashVal = c;
         eventText = e;
         hasFriend = hf;
+        isGain = ig;
     }
 
     public int getHealthVal()
     {
-        return healthVal;
+        if (isGain)
+        {
+            return healthVal;
+        }
+        else
+        {
+            return -healthVal;
+        }
+        
     }
 
     public int getMoraleVal()
     {
-        return moraleVal;
+        if (isGain)
+        {
+            return moraleVal;
+        }
+        else
+        {
+            return -moraleVal;
+        }
+        
     }
 
     public int getCashVal()
     {
-        return cashVal;
+        if (isGain)
+        {
+            return cashVal;
+        }
+        else
+        {
+            return -cashVal;
+        }
     }
 
     public string getEventText()
