@@ -13,6 +13,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] GameObject startMenu;
     [SerializeField] GameObject goldenCoin;
     [SerializeField] GameObject coinSpawnPoint;
+    [SerializeField] GameObject player;
 
     // UI Elements
 
@@ -54,7 +55,6 @@ public class GameManager : MonoBehaviour
      * Runs initializeEventData
      * Initializes phase to 1
      */
-
     void Start()
     {
         gameMenu.SetActive(false);
@@ -71,6 +71,39 @@ public class GameManager : MonoBehaviour
     void Update()
     {
         
+    }
+
+    int shitPileCount;
+
+    /* Plan for minigame method
+     * 
+     * Have a count to determine how many shit piles are spawned
+     * 
+     * Start minigame by changing the bool playerActive in the PlayerController to true,
+     * disabling the game menu, and teleporting the player object to the minigame platform
+     * 
+     * Maybe have a random platform generator? Idk that seems complex will get there later
+     * 
+     * End minigame when all the shitpiles have been destroyed, which will happen on the 
+     * PlayerController end when there's an OnTriggerEnter
+     */
+    public void startMenialLabor()
+    {
+        player.GetComponent<PlayerController>().setActive(true);
+
+        // Teleport player to the correct platform
+
+        // Set up a formula to calculate how many shit piles should spawn based on how much money you have
+        // Depends on how I end up scaling money earnings through events
+
+        // Set up a for loop to spawn random shit piles in a defined area
+
+        // Set up a condition to check if shit piles have all been collected
+
+        // Grant an amount of money. I don't know what amount is balanced yet. Maybe still a flat 10 dollars always
+
+        player.GetComponent<PlayerController>().setActive(false);
+
     }
 
     /* Switches menu to gameMenu
@@ -94,9 +127,22 @@ public class GameManager : MonoBehaviour
 
         foodBar += h;
         moraleBar += m;
-        
+
         hungerSlider.value = foodBar;
         moraleSlider.value = moraleBar;
+
+        if (foodBar <= 0 || moraleBar <= 0)
+        {
+            gameOver();
+        }
+    }
+
+    void gameOver()
+    {
+        // Return to start menu, maybe add in a highscore interface that triggers here
+        // That would also require figuring out a way to calculate score
+
+        Debug.Log("You lose!");
     }
 
     /* Adds input value to moneyBalance value
