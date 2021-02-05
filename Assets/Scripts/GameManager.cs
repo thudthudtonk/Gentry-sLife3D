@@ -14,6 +14,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] GameObject goldenCoin;
     [SerializeField] GameObject coinSpawnPoint;
     [SerializeField] GameObject player;
+    [SerializeField] GameObject shitPile;
 
     // UI Elements
 
@@ -25,6 +26,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] Button optionButton1;
     [SerializeField] Button optionButton2;
     [SerializeField] Button optionButton3;
+    [SerializeField] Button menialLaborButton;
     
     // Text
     [SerializeField] TextMeshProUGUI moneyText;
@@ -48,6 +50,10 @@ public class GameManager : MonoBehaviour
     private int moraleBar;
     private int friendAmount;
     private int moneyBalance;
+
+    // Minigame management bools
+    bool inMenialMinigame = false;
+
     
     // Start is called before the first frame update
     /* Sets correct menus active and inactive
@@ -70,10 +76,15 @@ public class GameManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        if (inMenialMinigame)
+        {
+            if (shitPileCount <= 0) {
+                endMenialLabor();
+            }
+        }
     }
 
-    int shitPileCount;
+    public int shitPileCount;
 
     /* Plan for minigame method
      * 
@@ -89,20 +100,43 @@ public class GameManager : MonoBehaviour
      */
     public void startMenialLabor()
     {
+        // Set up a formula to calculate how many shit piles should spawn based on how much money you have
+        // Depends on how I end up scaling money earnings through events
+        // For now, default 3
+        shitPileCount = 3;
+
+        // Set inMenialMinigame to true, signaling update to start checking if the shit piles have been collected
+        inMenialMinigame = true;
+
+        // setActive to true so player movement is enabled
         player.GetComponent<PlayerController>().setActive(true);
 
         // Teleport player to the correct platform
-
-        // Set up a formula to calculate how many shit piles should spawn based on how much money you have
-        // Depends on how I end up scaling money earnings through events
+        player.transform.position = new Vector3(-25, 1.3f, 0);
 
         // Set up a for loop to spawn random shit piles in a defined area
+        for (int i = 0; i < shitPileCount; i++)
+        {
+            Instantiate(shitPile, new Vector3(Random.Range(-28.8f, -18.8f), .64f, Random.Range(-3.2f, 7.2f)), shitPile.transform.rotation);
+        }
 
-        // Set up a condition to check if shit piles have all been collected
+    }
+
+    public void endMenialLabor()
+    {
+        inMenialMinigame = false;
+        
+        player.GetComponent<PlayerController>().setActive(false);
+
+        player.transform.position = new Vector3(-.6f, -.2f, 0);
+        
+        // Want to reset the rotation of the player so that the camera is in the right spot,
+        // but I also don't know how to do "quaternion" so I'm just borrowing the 0,0,0 rotation from 
+        // the coin spawn point
+        player.transform.rotation = coinSpawnPoint.transform.rotation;
 
         // Grant an amount of money. I don't know what amount is balanced yet. Maybe still a flat 10 dollars always
-
-        player.GetComponent<PlayerController>().setActive(false);
+        UpdateMoney(10);
 
     }
 
@@ -255,6 +289,7 @@ public class GameManager : MonoBehaviour
 
         // Add detectors for next phases
         // Add something that refreshes the mini game buttons once those minigames are made
+        menialLaborButton.interactable = true;
     }
 
     void testEventData()

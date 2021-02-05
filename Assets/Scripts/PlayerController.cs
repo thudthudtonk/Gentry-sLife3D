@@ -4,10 +4,12 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
+    [SerializeField] GameObject gameManager;
 
     private float horizontalInput;
     private float verticalInput;
     private float speed = 20.0f;
+    private float rotationSpeed = 50.0f;
     private Rigidbody playerRb;
     public bool isOnGround = true;
     public bool playerActive = false;
@@ -31,7 +33,7 @@ public class PlayerController : MonoBehaviour
         {
             horizontalInput = Input.GetAxis("Horizontal");
             verticalInput = Input.GetAxis("Vertical");
-            transform.Rotate(Vector3.right * Time.deltaTime * speed * horizontalInput);
+            transform.Rotate(Vector3.up * Time.deltaTime * rotationSpeed * horizontalInput);
             transform.Translate(Vector3.forward * Time.deltaTime * speed * verticalInput);
 
             if (Input.GetKeyDown(KeyCode.Space) && isOnGround)
@@ -52,8 +54,9 @@ public class PlayerController : MonoBehaviour
     {
         if (other.gameObject.CompareTag("ShitPile"))
         {
-            Destroy(other);
+            Destroy(other.gameObject);
 
+            gameManager.GetComponent<GameManager>().shitPileCount -= 1;
             // Reduce the number of shit piles in some variable on the game controller
 
         }
